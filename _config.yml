@@ -14,10 +14,10 @@ timezone: Europe/Madrid
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Raúl Aguilar # the main title
+title: Raúl Aguilar Arroyo # the main title
 
 tagline: Estudiante de Ingeniería Informática en la UC3M y 
-        entusiasta de la tecnolgia. # it will display as the sub-title
+        entusiasta de la tecnología. # it will display as the sub-title
 
 description: >- # used by seo meta and the atom feed
   Curriculum Vitae y Porfolio de Raúl Aguilar Arroyo, 
@@ -31,7 +31,7 @@ github:
   username: Ragarr # change to your github username
 
 twitter:
-  username:  # change to your twitter username
+  username: DefalcoVgl # change to your twitter username
 
 social:
   # Change to your full name.
@@ -43,6 +43,7 @@ social:
     - https://github.com/Ragarr # change to your github homepage
     - https://www.linkedin.com/in/raul-aguilar-arroyo-208462221/
     - https://www.goodreads.com/user/show/167633349-ra-l-aguilar
+    - https://x.com/DefalcoVgl
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
     # - https://www.linkedin.com/in/username
@@ -64,7 +65,7 @@ analytics:
   google:
     id: G-VG5FGK2J7Z
   goatcounter:
-    id: # fill in your GoatCounter ID
+    id: ragarr # fill in your GoatCounter ID
   umami:
     id: # fill in your Umami ID
     domain: # fill in your Umami domain
@@ -76,7 +77,7 @@ analytics:
 
 # Pageviews settings
 pageviews:
-  provider: # now only supports 'goatcounter'
+  provider: goatcounter # now only supports 'goatcounter'
 
 # Prefer color scheme setting.
 #
