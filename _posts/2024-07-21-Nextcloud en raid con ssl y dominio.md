@@ -1,5 +1,52 @@
+---
+title: Nextcloud en raid con ssl y dominio
+description: Instalación de Nextcloud en un servidor con Debian 12, montaje de un raid 5 para almacenar los datos de forma segura y configuración del acceso desde el exterior de forma segura con un certificado SSL.
+date: 2024-08-09
+tags: [Nextcloud, Debian, Servidor, Apache, Raid, SSL, DDNS, Selfhosting]
+categories: [Proyectos, Propios]
+pin: false
+toc: true
+comments: true
+---
 
+## Introduccion
+Este tutorial tiene como objetivo instalar Nextcloud desde cero en un servidor con Debian 12, montar un raid 5 para almacenar los datos de forma segura y configurar el acceso desde el exterior de forma segura con un certificado SSL.
+Cubriremos los siguientes puntos:
+- Instalación y configuración de Debian 12
+- Montaje de un raid 5 asegurar la integridad de los datos almacenados
+- Configuración de un servidor web con Apache y PHP
+- Instalación de Nextcloud
+- Configuración de un DDNS para acceder desde el exterior
+- Configuración de un certificado SSL con Let's Encrypt para asegurar la conexión desde el exterior
+- Configuración de un firewall para proteger el servidor
+- Configuración de un sistema de caché para mejorar el rendimiento de Nextcloud
+
+Este tipo de configuración es ideal para reemplazar servicios como Google Drive, Dropbox o OneDrive, ya que nos permite tener un control total sobre nuestros datos y asegurar su integridad y privacidad.
+
+### Requisitos
+- Un ordenador viejo que vamos a usar como servidor que idealmente tenga:
+  -  4GB de RAM o más (mínimo 2gb + 1gb por cada usuario activo).
+  -  4 núcleos de CPU o más(mínimo recomendado 2).
+  -  1 disco duro para el sistema operativo (mínimo 15-20gb).
+  -  3 discos duros para el raid 5, tamaño a elección, que sean de la misma capacidad o similar, puedes calcular el tamaño ideal [aquí](https://www.seagate.com/es/es/products/nas-drives/raid-calculator/).
+-  Acceso a la configuración del router.
+-  Otro ordenador desde el que acceder y configurar el servidor.
 ## 1. Instalar debian 12
+
+### 1.1. Descargar la imagen de debian 12
+
+Descargar la imagen de debian 12 netinstall desde la [página oficial](https://www.debian.org/distrib/netinst)
+
+### 1.2. Instalar debian 12
+Grabar la imagen en un USB con [balenaEtcher](https://www.balena.io/etcher/) o [Rufus](https://rufus.ie/)
+
+### Instalación
+Instalamos el sistema operativo con las opciones que prefiramos, en un disco distinto del que vamos a usar para el raid 5.
+
+Por ultimo, debemos desmarcar la opción de instalar el entorno gráfico. Unicamente instalaremos el sistema base y el servidor SSH.
+
+
+Una vez finalizada la instalación, reiniciamos el sistema y accedemos con el usuario y la contraseña que hayamos establecido.
 
 ## 2. Montar raid 5
 
@@ -15,7 +62,7 @@ Listar los discos
 ```bash	
 fdisk -l
 ```
-Miramos cuales son los discos que queremos usar para el raid 5, en este caso sda, sdb y sdc.
+Miramos cuales son los discos que queremos usar para el raid 5, en este caso sda, sdb y sdc.º
 
 ```bash
 mdadm --create /dev/md0 --level=5 --raid-devices=3 /dev/sda /dev/sdb /dev/sdc
@@ -96,7 +143,7 @@ sudo ufw status
 ```
 
 ### 3.3 Keygen para ssh
-En el cliente ejecutamos el siguiente comando
+**En el cliente** ejecutamos el siguiente comando, sustituyendo `<client_name>` por el nombre elijamos.
 
 ```bash
 ssh-keygen -t rsa -b 4096 -C "<client_name>"
@@ -116,7 +163,7 @@ scp -P 2222 ~/.ssh/id_rsa.pub <user>@<server_ip>:/home/<user>/.ssh/authorized_ke
 {:.info}
 ```
 
-Desde el servidor hacemos que solo se acepten conexiones ssh con clave
+**Desde el servidor** hacemos que solo se acepten conexiones ssh con clave
 ```bash
 sudo nano /etc/ssh/sshd_config
 ```
@@ -136,6 +183,7 @@ Reiniciamos el servicio
 sudo systemctl restart sshd
 ```
 
+Ahora cuando intentemos acceder al servidor por ssh, deberia localizar la clave privada y no pedirnos la contraseña.
 
 ## 4. Instalar Nextcloud
 
@@ -171,7 +219,7 @@ flush privileges;
 quit
 ```
 
-#### 4.1.3 Instalar PHP
+#### 4.1.3 Instalar PHP y módulos necesarios
 ```bash
 sudo apt install software-properties-common
 sudo add-apt-repository ppa:ondrej/php
@@ -257,9 +305,10 @@ sudo systemctl restart apache2 # en caso de que no funcione el anterior
 ```
 
 #### 4.2.3 Configurar Nextcloud
+##### 4.2.3.1 Configuración del router
+Primero recomiendo asignar una dirección IP estática al servidor, esto es posible hacerlo desde la configuración del router. Cada router es diferente, por lo que no puedo dar una guía exacta, pero en la mayoría de los casos se puede hacer desde la sección de DHCP.
 
-Primero recomiendo asignar una dirección IP estática al servidor, esto es posible hacerlo desde la configuración del router.
-
+##### 4.2.3.2 Configuración de Nextcloud
 Accede a la dirección IP del servidor desde un navegador y sigue los pasos de la instalación de Nextcloud.
 
 - Establece el usuario y la contraseña administrador
@@ -273,7 +322,7 @@ Accede a la dirección IP del servidor desde un navegador y sigue los pasos de l
 
 
 ```md
-> Nota, si no has creado la carpeta de datos, hazlo con `sudo mkdir -p /mnt/raid/nextcloud/data` y asegúrate de que el usuario www-data tiene permisos de escritura en la carpeta con `sudo chown -R www-data:www-data /mnt/raid/nextcloud/data`
+> Nota, si no has creado la carpeta de datos, hazlo con `sudo mkdir -p /mnt/raid/nextcloud/data` y asegúrate de que el usuario www-data tiene permisos de escritura en la carpeta con el comando `sudo chown -R www-data:www-data /mnt/raid/nextcloud/data`
 {:.info}
 ```
 
@@ -343,7 +392,6 @@ sudo nano /var/www/nextcloud/config/config.php
 ```
 
 Añadimos las siguientes líneas
-#FIXME -> ARREGLAR MEMCACHE Y ACTUALIZAR DOCUMENTACIÓN
 ```php
     'filelocking.enabled' => true,
     'memcache.local' => '\\OC\\Memcache\\APCu',
@@ -353,6 +401,11 @@ Añadimos las siguientes líneas
         'host' => '127.0.0.1',
         'port' => 6379,
     ),
+```
+
+```md	
+> Nota: Si en un futuro tienes errores con la subida y edicion de archivos y obtienes errores como "file is locked" o similares, prueba a desactivar el bloqueo de archivos con la siguiente línea `'filelocking.enabled' => false,`
+{:.info}
 ```
 
 Guardamos y reiniciamos apache
@@ -422,7 +475,33 @@ Guarda y reinicia apache
 sudo service apache2 restart
 ```
 
-### 5.3 SSL
+### 5.2 Configurar un puerto en el router
+Una vez has configurado el DDNS, debes configurar el router para permitir el acceso desde el exterior.
+
+1. Accede a la configuración del router
+2. Busca la sección de reenvío de puertos
+3. Añade una nueva regla
+   1. Nombre: Nextcloud
+   2. Protocolo: TCP
+   3. Puerto externo: 443
+   4. IP interna: la IP del servidor
+   5. Puerto interno: 443
+   6. Guarda la configuración
+4. Añade una segunda regla
+   1. Nombre: Nextcloud
+   2. Protocolo: TCP
+   3. Puerto externo: 80
+   4. IP interna: la IP del servidor
+   5. Puerto interno: 80
+   6. Guarda la configuración
+5. Opcionalmente, puedes añadir una regla para el puerto 2222 (o el que eligieras) para acceder por ssh desde el exterior
+
+
+```md
+
+
+### 5.3 SSL (Let's Encrypt) 
+Para poder acceder de forma segura a nuestro servidor desde el exterior, necesitamos un certificado SSL. Para ello vamos a usar Let's Encrypt.
 
 #### 5.3.1 Instalar certbot
 ```bash
@@ -432,9 +511,12 @@ sudo ln -s /snap/bin/certbot /usr/bin/certbot
 ```
 
 #### 5.3.2 Obtener un certificado
+Este comando realizara la configuracion necesaria en apache y obtendra un certificado SSL de forma automatica. 
+Tambien configurara la renovacion automatica del certificado.
 ```bash
 sudo certbot --apache
 ```
+
 
 Si has seguido todo correctamente tu archivo /etc/apache2/sites-available/000-default.conf debería tener una configuración similar a esta
 ```apache
@@ -497,3 +579,8 @@ Tue 2024-07-23 00:03:00 CEST 9h left  -  -  snap.certbot.renew.timer  snap.certb
 ```
 Que indica que se compronbará la renovación del certificado periodicamente.
 
+
+## 6. Conclusiones
+Con este tutorial hemos instalado Nextcloud en un servidor con Debian 12, montado un raid 5 para almacenar los datos de forma segura y hemos configurado el acceso desde el exterior de forma segura con un certificado SSL. 
+
+Por lo que ahora podemos acceder a nuestros archivos de forma segura desde cualquier lugar y tener la tranquilidad de que nuestros datos están seguros.
