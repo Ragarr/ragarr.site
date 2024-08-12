@@ -3,7 +3,7 @@ title: Nextcloud en raid con ssl y dominio
 description: Instalación de Nextcloud en un servidor con Debian 12, montaje de un raid 5 para almacenar los datos de forma segura y configuración del acceso desde el exterior de forma segura con un certificado SSL.
 date: 2024-08-09
 tags: [Nextcloud, Debian, Servidor, Apache, Raid, SSL, DDNS, Selfhosting]
-categories: [Proyectos, Propios]
+categories: [Proyectos, Tutoriales]
 pin: false
 toc: true
 comments: true
