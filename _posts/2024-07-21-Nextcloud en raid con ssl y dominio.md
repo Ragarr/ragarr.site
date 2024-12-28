@@ -158,10 +158,9 @@ Manda la clave al servidor
 ```bash
 scp -P 2222 ~/.ssh/id_rsa.pub <user>@<server_ip>:/home/<user>/.ssh/authorized_keys
 ```
-```md
+
 > Nota: Si no existe el directorio .ssh en el servidor, lo creamos
-{:.info}
-```
+{: .prompt-info }
 
 **Desde el servidor** hacemos que solo se acepten conexiones ssh con clave
 ```bash
@@ -243,10 +242,9 @@ Descomprime el archivo
 ```bash
 unzip latest.zip -d /var/www
 ```
-```md	
+
 > Nota: Si no tienes instalado unzip, instálalo con `sudo apt install unzip`
-{:.info}
-```
+{: .prompt-info }
 
 
 
@@ -321,10 +319,9 @@ Accede a la dirección IP del servidor desde un navegador y sigue los pasos de l
     - Servidor: localhost
 
 
-```md
+
 > Nota, si no has creado la carpeta de datos, hazlo con `sudo mkdir -p /mnt/raid/nextcloud/data` y asegúrate de que el usuario www-data tiene permisos de escritura en la carpeta con el comando `sudo chown -R www-data:www-data /mnt/raid/nextcloud/data`
-{:.info}
-```
+{: .prompt-info }
 
 Una vez termine de cargar le decimos de instalar las aplicaciones recomendadas.
 
@@ -403,10 +400,9 @@ Añadimos las siguientes líneas
     ),
 ```
 
-```md	
+
 > Nota: Si en un futuro tienes errores con la subida y edicion de archivos y obtienes errores como "file is locked" o similares, prueba a desactivar el bloqueo de archivos con la siguiente línea `'filelocking.enabled' => false,`
-{:.info}
-```
+{: .prompt-info }
 
 Guardamos y reiniciamos apache
 ```bash
@@ -497,7 +493,6 @@ Una vez has configurado el DDNS, debes configurar el router para permitir el acc
 5. Opcionalmente, puedes añadir una regla para el puerto 2222 (o el que eligieras) para acceder por ssh desde el exterior
 
 
-```md
 
 
 ### 5.3 SSL (Let's Encrypt) 
