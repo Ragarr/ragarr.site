@@ -24,12 +24,10 @@ abstract: |
   applications. This analysis provides insights for developing more
   resilient censorship circumvention tools and offers guidance to users
   seeking secure methods for bypassing censorship.
-author:
-- Raúl Aguilar Arroyo
 ---
 
 
-> Nota: The original document [can be found here](/media/2025-02-11-Hiding%20Content-in-Video-Calls-to-Resist-Censorship/Hiding_Content_in_Video_Calls_to_Resist_Censorship.pdf)
+> Nota: The original document [can be found and downloaded here](/media/2025-02-11-Hiding%20Content-in-Video-Calls-to-Resist-Censorship/Hiding_Content_in_Video_Calls_to_Resist_Censorship.pdf)
 {: .prompt-info }
 
 
