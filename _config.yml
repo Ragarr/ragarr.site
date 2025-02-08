@@ -16,8 +16,10 @@ timezone: Europe/Madrid
 
 title: Raúl Aguilar Arroyo # the main title
 
-tagline: Estudiante de Ingeniería Informática en la UC3M y 
-        entusiasta de la tecnología. # it will display as the sub-title
+tagline: Soy Raúl Aguilar Arroyo, estudiante de Ingeniería Informática 
+        apasionado por la inteligencia artificial, la ciberseguridad y el desarrollo de software.
+        Me encanta investigar y construir soluciones innovadoras.  
+        En este espacio comparto mis proyectos, experiencias y aprendizajes. Si te interesa la IA, la automatización o la seguridad informática, ¡estás en el lugar correcto!
 
 description: >- # used by seo meta and the atom feed
   Curriculum Vitae y Porfolio de Raúl Aguilar Arroyo, 
