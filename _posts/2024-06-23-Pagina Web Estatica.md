@@ -1,5 +1,5 @@
 ---
-title: Pagina web estática con HTML, CSS y JavaScript
+title: Página web estática con HTML, CSS y JavaScript
 description: Creación de una página web estática con HTML, CSS y JavaScript que mostraba mi CV y portfolio antes de que me cambiara a Jekyll.
 date: 2024-06-23
 tags: [HTML, CSS, JavaScript, Desarrollo Web]
