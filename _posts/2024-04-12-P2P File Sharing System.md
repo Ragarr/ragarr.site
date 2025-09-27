@@ -8,7 +8,7 @@ pin: false
 toc: true
 lang: en
 image:
-  path: /media/2024-04-12-Sistema%20P2P/portada.png
+  path: /media/2024-04-12-P2P%20File%20Sharing%20System/portada.png
   alt: System architecture model
 ---
 
@@ -26,7 +26,7 @@ The full project can be found in the following [GitHub repository](https://githu
 
 ## System architecture
 
-![](/media/2024-04-12-Sistema%20P2P/fig1.png)
+![](/media/2024-04-12-P2P%20File%20Sharing%20System/fig1.png)
 
 ### RPC Service (Logger)
 Acts as a **central logging system**, capturing and storing all user operations. Implemented in **C** using the **ONC-RPC** model, it ensures consistent interfaces for requests/responses and provides effective auditing.

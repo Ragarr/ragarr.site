@@ -20,7 +20,7 @@ The objective of this project is to learn concepts of cryptography, security, an
 ## How it works
 
 When the application starts, it attempts to connect to the server, checks the validity and trustworthiness of its certificate, and, if everything is correct, continues with normal execution, where the user can view **encrypted** images stored by the server or log in to view their own decrypted images. In reality, certificate verification is performed each time a request is made to the server, so if the certificate changes, the application will detect it and display an error message.
-![](/media/2023-10-27-Image%20encryption%20system%20by%20areas/image4.png){: .white-bg}
+![](/media/2023-10-27-2023-10-27-Image%20encryption%20ystem/image4.png){: .white-bg}
 
 It should be noted that the system is not truly distributed, since the server and client are on the same machine and are represented as two different classes of the same application. This is only a simplification to show how the system works.
 
@@ -51,12 +51,12 @@ If you wanted to deploy the system in a real environment, you would have to sepa
 8. If it is valid, a confirmation message is sent to the user.
 
 ### Image encryption and sending
-![](/media/2023-10-27-Image%20encryption%20system%20by%20areas/image1.jpg){: .white-bg}
+![](/media/2023-10-27-2023-10-27-Image%20encryption%20system/image1.jpg){: .white-bg}
 
 1. The image is loaded into the application and the range of pixels to be encrypted is selected.
 2. The server certificate is checked.
-3. The section of the image is encrypted. 
-    ![Desktop View](/media/2023-10-27-Area%20based%20image%20encryption%20system/image3.jpg){: .white-bg  .h100}
+3. The section of the image is encrypted.
+    ![Desktop View](/media/2023-10-27-2023-10-27-Image%20encryption%20system/image3.jpg){: .white-bg  .h100}
    1. A random salt is generated.
    2. An encryption key is generated with the salt and the user's password (NOT THE HASH) using PBKDF2HMAC.
    3. A random IV is generated.
@@ -90,7 +90,7 @@ If you wanted to deploy the system in a real environment, you would have to sepa
 
 ## Project structure
 
-![](/media/2023-10-27-Image%20encryption%20system%20by%20areas/structure.png){: .white-bg}
+![](/media/2023-10-27-2023-10-27-Image%20encryption%20ystem/structure.png){: .white-bg}
 
 ## Links of interest
 ### Project report
