@@ -1,9 +1,9 @@
 ---
-title: Sobre este sitio
+title: About this site
 icon: fas fa-info-circle
 order: 4
 ---
 
-Esta Web está basada en el tema [**Chirpy**](https://chirpy.cotes.page/) de [Cotes](https://github.com/cotes2020) para Jekyll y ha sido desplegada en GitHub Pages.
+This website is based on the [**Chirpy**](https://chirpy.cotes.page/) theme by [Cotes](https://github.com/cotes2020) for Jekyll and has been deployed on GitHub Pages.
 
-Este tema ha sido modificado para adaptarse a mis necesidades y gustos personales. Puedes encontrar el código fuente de mi versión en [este repositorio de GitHub](https://github.com/Ragarr/Raul-Aguilar) (si el link no esta disponible significa que el repositorio todavia no ha sido publicado, lo intentare hacer publico cuando las bases esten terminadas).
+This theme has been modified to suit my personal needs and tastes. You can find the source code for my version in [this GitHub repository](https://github.com/Ragarr/ragarr.site) (if the link is not available, it means that the repository has not yet been published; I will try to make it public when the foundations are complete).
