@@ -15,81 +15,90 @@ image:
 
 ## About the project
 
-The goal of this project was to learn key concepts of **cryptography, security, and data encryption**. We developed an application that allows encrypting **specific sections of images** before they are stored on a server. A typical use case would be real‑time publication of security camera feeds where privacy must be protected (e.g., blurring people’s faces) while still allowing access to the original image if necessary.
+The objective of this project is to learn concepts of cryptography, security, and data encryption. To this end, an application has been developed that allows sections of images stored on a server to be encrypted. One use case for this application would be the publication of real-time security camera images, where the privacy of the people appearing in the images needs to be protected, while at the same time being able to view the original image if necessary.
 
 ## How it works
 
-When the application starts, it connects to the server, validates the server’s certificate, and, if trusted, continues execution. The user can then view encrypted images stored by the server or log in to view their own decrypted images. Certificate validation occurs on every request, so if the certificate changes, the application detects it and raises an error.
+When the application starts, it attempts to connect to the server, checks the validity and trustworthiness of its certificate, and, if everything is correct, continues with normal execution, where the user can view **encrypted** images stored by the server or log in to view their own decrypted images. In reality, certificate verification is performed each time a request is made to the server, so if the certificate changes, the application will detect it and display an error message.
+![](/media/2023-10-27-Image%20encryption%20system%20by%20areas/image4.png){: .white-bg}
 
-> Note: In this prototype the server and client run on the same machine as separate classes for demonstration purposes. In a real deployment, they would run on separate hosts and communicate over a channel such as a REST API.
+It should be noted that the system is not truly distributed, since the server and client are on the same machine and are represented as two different classes of the same application. This is only a simplification to show how the system works.
 
-### User account management
+If you wanted to deploy the system in a real environment, you would have to separate the server and client onto two different machines and implement a communication system between them, such as a REST API.
+
+### Login and user account management
 
 #### Registration
-1. Connect to the server and validate its certificate.
+
+1. Connect to the server and check the validity and trustworthiness of the certificate.
 2. User enters username and password.
-3. Password is converted to binary.
-4. Password is encrypted with the server’s public key.
-5. Server checks if the user already exists.
-6. If not, it decrypts the password with its private key and verifies it.
-7. If valid, a password hash is generated (KDF with **Scrypt**) and stored in the database—so the server never stores raw passwords.
-8. Confirmation is sent to the client.
+3. Convert the password to binary.
+4. Encrypt the password with the server's public key.
+5. The server checks if the user already exists.
+6. If not, it decrypts the password with its private key and checks that it is valid.
+7. If valid, a HASH (KDF with Scrypt) of the password is generated and stored in the database. This way, the server does not store user passwords.
+8. A confirmation message is sent to the user.
 
 #### Login
-1. Connect to the server and validate its certificate.
-2. User enters credentials.
-3. Password is converted to binary.
-4. Password is encrypted with the server’s public key.
-5. Server checks if the user exists.
-6. If so, it decrypts the password.
-7. Generates the hash (KDF with **Scrypt**) and compares it with the stored value.
-8. If valid, confirmation is sent to the client.
 
-### Image encryption & upload
+1. Connect to the server and check the validity and trustworthiness of the certificate.
+2. User enters username and password.
+3. Convert the password to binary.
+4. Encrypt the password with the server's public key.
+5. The server checks if the user exists.
+6. If they exist, the password is decrypted with their private key.
+7. The password's HASH (KDF with Scrypt) is generated and compared with the one stored in the database.
+8. If it is valid, a confirmation message is sent to the user.
 
-1. User loads an image and selects a pixel region to encrypt.
-2. Server certificate is validated.
-3. The selected region is encrypted using **AES‑CTR** with the following steps:  
-   - Generate a random salt.  
-   - Derive an encryption key with **PBKDF2HMAC** using the salt and the user’s password.  
-   - Generate a random IV.  
-   - Store IV, salt, algorithm, and region metadata in the image header.  
-   - Encrypt the region with AES‑CTR.
-4. The image is signed with the client’s private key:  
-   - Generate a random key.  
-   - Create a SHA256 hash of the image binary + IV + salt + key.  
-   - Encrypt the hash with the client’s private key.  
-   - Encrypt the random key with the server’s public key.  
-   - Write the signed hash and encrypted key into the image metadata.  
-5. Image is sent to the server:  
-   - Server validates the client’s certificate and credentials.  
-   - Decrypts the key with its private key.  
-   - Recomputes the SHA256 hash.  
-   - Verifies the signature with the client’s public key.  
-   - Stores the image.
+### Image encryption and sending
+![](/media/2023-10-27-Image%20encryption%20system%20by%20areas/image1.jpg){: .white-bg}
 
-**This design ensures the server has no access to either the original image or the user’s password, so it cannot decrypt the content.**
+1. The image is loaded into the application and the range of pixels to be encrypted is selected.
+2. The server certificate is checked.
+3. The section of the image is encrypted. 
+    ![Desktop View](/media/2023-10-27-Area%20based%20image%20encryption%20system/image3.jpg){: .white-bg  .h100}
+   1. A random salt is generated.
+   2. An encryption key is generated with the salt and the user's password (NOT THE HASH) using PBKDF2HMAC.
+   3. A random IV is generated.
+   4. The IV, salt, algorithm used, and encrypted image section are written to the image metadata.
+   5. The section of the image is encrypted with AES in CTR mode.
+4. The image is signed with the client's private key.
+   1. A random key is generated.
+   2. A hash is generated with SHA256 from the image binary, the IV, the salt, and the key.
+   3. The hash is signed (encrypted) with the client's private key.
+   4. The key used to generate the hash is encrypted with the server's public key.
+   5. The signed hash and encrypted key are written to the image metadata.
+5. The image is sent to the server.
+   1. The server checks the client's certificate and credentials.
+   2. The key is decrypted with the server's private key.
+   3. The hash is regenerated with SHA256 from the image binary, the IV, the salt, and the key.
+   4. The hash signature is verified with the client's public key.
+   5. The image is stored. 
 
-### Image download & decryption
+**This way, the server does not have access to the original image or the user's password, so it cannot decrypt the image.**
 
-1. Client connects and validates the server’s certificate.
-2. Requests images to decrypt. Since these are public, no credentials are required.
-3. For each image:  
-   - Read IV, salt, and encrypted region from metadata.  
-   - Re‑derive the key using salt + user’s password.  
-   - Decrypt the region with AES‑CTR.  
-   - Reconstruct the full original image.
-4. Decrypted image is displayed to the user.
+### Downloading and decrypting images
+
+1. Connect to the server and check the validity and trustworthiness of the certificate.
+2. Request the image(s) to be decrypted from the server. As these are public, they are sent without credential verification.
+3. Each image is decrypted:
+   1. The IV, salt, and section of the encrypted image are read from the metadata.
+   2. The encryption key is regenerated with the salt and the user's password.
+   3. The section of the image is decrypted with AES in CTR mode.
+   4. The original image is reconstructed.
+4. The image is displayed to the user.
 
 ## Project structure
 
-![](/media/2023-10-27-Sistema%20de%20encriptado%20de%20imagenes%20por%20areas/estructura.png){: .white-bg}
+![](/media/2023-10-27-Image%20encryption%20system%20by%20areas/structure.png){: .white-bg}
 
-## References
+## Links of interest
+### Project report
 
-### Project reports
-- [Project Report – Part 1](/media/2023-10-27-Sistema%20de%20encriptado%20de%20imagenes%20por%20areas/Memoria%201.pdf)  
-- [Project Report – Part 2](/media/2023-10-27-Sistema%20de%20encriptado%20de%20imagenes%20por%20areas/Memoria%202.pdf)
+The first part of the project report can be found at the following link: [1st project report](/media/2023-10-27-Area%20based%20image%20encryption%20system/Memoria 1.pdf)
 
-### Source code
-- [GitHub repository](https://github.com/Ragarr/Criptografia_2023-24)
+The second part of the project report can be found at the following link: [2nd project report](/media/2023-10-27-Area%20based%20image%20encryption%20system/Memoria 2.pdf)
+
+### Project repository
+
+The source code for the latest version of the project can be found at the following link: [Project repository](https://github.com/Ragarr/Criptografia_2023-24)
