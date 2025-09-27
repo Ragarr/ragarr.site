@@ -98,7 +98,7 @@ Working with fractional velocities gives better game feel (inertia, smooth jumps
 
 | With rounding | Without rounding |
 |---|---|
-|![](/media/2021-12-14-Mario%20Bros%20in%20Python/FRAMING.PNG)|![](/media/2021-12-14-Mario%20Bros%20in%20Python/NOT%20FRAMING.PNG)|
+|![](/media/2021-12-14-Mario%20Bros%20in%20Python/FRAMING.PNG)|![](/media/2021-12-14-Mario Bros in Python/NOT FARAMING.PNG)|
 
 #### `reset_level` & `reset_game`
 `reset_level` restarts the level preserving only lives; `reset_game` resets everything. We avoided re‑calling `Game.__init__` to prevent Pyxel from re‑initializing and spawning extra windows.

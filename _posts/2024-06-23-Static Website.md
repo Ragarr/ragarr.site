@@ -8,7 +8,7 @@ pin: false
 toc: true
 lang: en
 image:
-  path: /media/2024-06-23-Pagina%20Web%20Estatica/portada.png
+  path: /media/2024-06-23-Static Website/portada.png
   alt: Static website cover
 ---
 
@@ -72,7 +72,7 @@ document.addEventListener("mousemove", function (e) {
 });
 ```
 
-![Light animation](/media/2024-06-23-Pagina%20Web%20Estatica/fig1.gif)
+![Light animation](/media/2024-06-23-Static Website/fig1.gif)
 
 - **Hover animations**: highlighting hovered elements while dimming others.
 
@@ -92,7 +92,7 @@ blocks.forEach((project) => {
 });
 ```
 
-![Hover animation](/media/2024-06-23-Pagina%20Web%20Estatica/fig2.gif)
+![Hover animation](/media/2024-06-23-Static Website/fig2.gif)
 
 ## Conclusion
 
