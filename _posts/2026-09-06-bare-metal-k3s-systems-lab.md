@@ -88,10 +88,6 @@ one that matches what its data actually is:
 - Reproducible state — caches, media that can be re-acquired, derived artefacts — where it is not.
 - State whose access pattern makes locality matter more than redundancy.
 
-<!-- TODO: replace the three bullets above with the actual StorageClass names,
-     replica counts, and the specific data locality / reclaim settings for each.
-     I have deliberately not guessed at the numbers. -->
-
 The general lesson transfers directly upward. Parallel file systems make exactly this trade — stripe
 width, replication, and where the durability boundary sits — and they make it at a scale where
 getting it wrong is expensive. Making the same decision three times on hardware I own, and then
@@ -139,21 +135,6 @@ of a scheduling problem that is very large in HPC: an exclusive, non-divisible a
 scheduler has to allocate, that cannot be oversubscribed, and whose availability constrains where the
 work can run at all.
 
-## What broke, and what it taught
-
-<!-- TODO: this section is the one that makes the post, and it is the one I cannot
-     write without you. What I need:
-       - the disk / controller failures you have actually had on the t320 (what
-         failed, how Longhorn behaved, whether a rebuild completed cleanly)
-       - any split-brain, stuck-volume or failed-attach incident, and how it resolved
-       - what happened to the cluster when a node went down, planned or otherwise
-       - anything Flux reconciled destructively, or refused to reconcile
-       - the PERC H710 / Longhorn friction in concrete terms
-       - anything you lost, and whether the K8up backups actually restored
-     Concrete incidents only — no plausible-sounding hypotheticals. -->
-
-*This section is being written up from the incident notes and will be filled in shortly.*
-
 ## What carries over into the research
 
 The line from here to what I do at ARCOS is shorter than it looks.
@@ -163,10 +144,10 @@ question every parallel file system answers: where does the durability boundary 
 a write, and what does the system do when a participant stops responding. Having tuned that by hand
 against a link I can saturate, the trade-offs in a parallel I/O paper read differently.
 
-**Dependable systems.** Failure recovery on paper is a state machine. Failure recovery at 2 a.m. is a
-state machine plus incomplete information plus whatever the hardware decided to do. The gap between
-those two is where the interesting research questions live, and it is only visible if you have stood
-in it.
+**Dependable systems.** Failure recovery on paper is a state machine. Failure recovery on real
+hardware is a state machine plus incomplete information plus whatever the disk decided to do. The gap
+between those two is where the interesting research questions live, and running something I depend on
+is how I expect to keep meeting it.
 
 **Reproducibility.** A GitOps cluster and a reproducible experiment are the same discipline applied
 to different artefacts. Practising it on infrastructure I own means it is already a habit when it
@@ -175,6 +156,6 @@ matters for results.
 **Scheduling under constraint.** One GPU, one pod, no oversubscription. Scale that up and it is a
 resource manager on a real machine — the same problem, with more zeros.
 
-None of this replaces working on actual HPC systems. But it does mean that when I read about a
-failure mode, I have usually met a small one in person, and that turns out to matter more than I
-expected.
+None of this replaces working on actual HPC systems. What it does is keep the abstractions honest:
+it is harder to write breezily about replication cost or failure recovery when there is a machine in
+the next room whose behaviour will eventually disagree with you.

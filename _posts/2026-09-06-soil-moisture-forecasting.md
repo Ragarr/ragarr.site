@@ -5,129 +5,207 @@ categories: [Research, Machine Learning]
 tags: [time-series, lstm, transformer, deep-learning, sensor-networks, publication, preprocessing]
 pin: true
 toc: true
+math: true
 ---
 
 <!-- TODO: cover image → media/2026-09-06-soil-moisture-forecasting/portada.png,
      then add the `image:` front-matter block. -->
 
-> **Status: draft.** The pipeline details, metrics and ablation results below are being written up
-> from the two papers. Every quantitative claim is deliberately absent until it comes from the
-> published work.
-{: .prompt-warning }
-
-This is the line of work I did in the **GIAA group** at Universidad Carlos III de Madrid, in
-collaboration with the Universidad Politécnica de Madrid, on forecasting soil moisture from ground
-sensor networks in the **Duero basin**. It produced two first-author publications:
+This is the work I did in the **GIAA group** (Applied Artificial Intelligence) at Universidad Carlos III
+de Madrid, with the Universidad Politécnica de Madrid, on forecasting soil moisture from a field sensor
+network. It produced two first-author publications:
 
 - **Deep Learning for Robust Soil Moisture Forecasting Using LSTM and Transformer** — SOCO 2025,
-  Springer.
+  Springer CCIS vol. 2806, pp. 193–202.
+  [DOI](https://doi.org/10.1007/978-3-032-19763-4_18)
 - **Data-driven forecasting of soil moisture based on enhanced pre-processing of data from on ground
-  sensor networks** — R. Aguilar, M. A. Patricio, A. Berlanga, J. M. Molina, S. Zubelzu, *Physics and
-  Chemistry of the Earth, Parts A/B/C*, vol. 145, art. 104766, 2026.
+  sensor networks** — *Physics and Chemistry of the Earth, Parts A/B/C*, vol. 145, art. 104766, 2026.
   [DOI](https://doi.org/10.1016/j.pce.2026.104766)
 
 The obvious post to write about this would be about the models. This is not that post, because the
-models were not where the difficulty was. The title of the journal article says so out loud —
-*enhanced pre-processing* — and that is the honest description of where the contribution lives.
+models were not where the difficulty was. The journal title says so out loud — *enhanced
+pre-processing* — and that is an honest description of where the contribution sits.
 
 ## 1. Field sensor data is a mess, and that is the actual problem
 
-A soil moisture time series from a research paper is a clean, evenly sampled, gap-free vector. A soil
-moisture time series from a sensor buried in a field in the Duero basin is not that. It is an
-instrument exposed to weather, wildlife, power interruptions and time, transmitting over a link that
-does not always work, and it produces data with all of the corresponding pathologies:
+The deployment is a network of **55 soil moisture sensors** at the Parque Agrourbano de Valdebebas in
+Madrid, covering roughly **120,000 m²** on a regular **50 × 50 m grid**. Each unit is an
+ESP32-PICO-D4 board with **two independent corrosion-resistant resistive probes** buried at 10 cm,
+sampling every **15 minutes**, where each recorded value is already the mean of 10 readings.
 
-- **Gaps**, from a few missing samples to extended outages, and not randomly distributed — sensors
-  tend to fail under exactly the conditions that make the readings most interesting.
-- **Drift**, where a sensor's calibration moves slowly enough that no single reading looks wrong.
-- **Hard faults**, producing stuck values, flatlines, out-of-range spikes, or plausible-looking
-  garbage that is harder to catch than obvious garbage.
-- **Irregular sampling**, because acquisition schedules and reality do not always agree.
+That is a careful design. The data still comes out badly behaved, and the specific ways it fails are
+worth listing, because they are not the failures a synthetic benchmark prepares you for:
 
-None of this is incidental. It is a permanent property of the measurement setting, and any method
-that is going to be used on real data has to survive it.
+- **Batteries fail twice over.** Depletion opens gaps while a human goes out to swap cells — but before
+  that, the sensors show a *measurable dependence of their output on supply voltage*. A draining battery
+  quietly shifts the internal reference, so it produces low-frequency drift and intermittent shutdowns
+  at the same time. The gap is visible; the drift preceding it is not.
+- **Variance that comes from the electronics, not the soil.** The measured value and its variance turn
+  out to be strongly correlated, which is a physical tell: part of the observed variability is
+  amplification behaviour, not soil dynamics. Two probes on the same board can differ in variance by
+  several orders of magnitude.
+- **The two probes of one device disagree.** Within a single physical unit, one channel will show
+  dropouts, offset shifts, isolated peaks or zeros while the other looks fine — transient instability
+  or contact degradation.
+- **Outliers that are sometimes real.** Some spikes are sensor malfunction. Others are heavy rainfall,
+  which is precisely the event the network exists to capture. You cannot filter on shape alone.
+
+None of this is incidental. It is a permanent property of leaving instruments in a field, and any
+method meant for real data has to survive it.
 
 ## 2. What most papers do about it, and why that is not enough
 
-The standard treatment is short: drop the incomplete records, interpolate the small gaps linearly,
-and proceed to the model. Sometimes it is not mentioned at all, which amounts to the same thing.
+The standard treatment is brief: drop incomplete records, interpolate small gaps, proceed to the model.
+Often it goes unmentioned, which amounts to the same thing.
 
-There are two problems with that. The first is that dropping incomplete records is not a neutral
-operation — it removes precisely the periods when the instrumentation was under stress, which
-biases the dataset toward benign conditions and quietly inflates the reported performance. The second
-is that it makes results non-transferable: a model validated on the surviving clean subset has not
-been shown to work on the data a practitioner will actually have.
+The papers this work builds on generally operate on **highly controlled deployments** where sensors
+behave and datasets do not carry corrupted records, so preprocessing is reduced to whatever the chosen
+algorithm formally requires. That is a reasonable thing to do with good data. It just does not describe
+the situation of anyone running instruments outdoors.
 
-So the interesting question is not *which architecture forecasts best on clean data*. It is *what has
-to happen to the raw data before any architecture has a fair chance*, and how much of the final
-performance that step is responsible for.
+There are two problems with importing that habit. Dropping incomplete records is not neutral — it
+removes exactly the periods when the instrumentation was under stress, biasing the training set toward
+benign conditions and inflating reported performance. And it makes results non-transferable: a model
+validated on the surviving clean subset has not been shown to work on the data a practitioner actually
+has.
 
-## 3. The pre-processing pipeline
+## 3. The pipeline selects, it does not repair
 
-<!-- TODO: this is the core section and it comes straight from the PCE paper. Needed:
-       - the gap-handling strategy, and the threshold at which the treatment changes
-         (short gaps vs. extended outages are presumably not handled the same way)
-       - the quality-control rules: how stuck values, flatlines, spikes and
-         out-of-range readings are detected, and what the criteria actually are
-       - the drift correction / calibration approach
-       - resampling and alignment: target frequency and how irregular timestamps
-         are reconciled
-       - normalisation, and whether it is fitted per sensor or globally
-       - the order the stages run in, and which are conditional
-       - a pipeline diagram → media/2026-09-06-soil-moisture-forecasting/pipeline.png
-     State the rules concretely enough that someone could reimplement them. -->
+Here is the design decision that makes this work different, stated plainly in the paper: *the objective
+was not to correct the raw measurements, but to identify time intervals that were both valid and
+representative of the underlying soil-moisture dynamics.*
 
-## 4. Models: LSTM, Transformer, and honest baselines
+That is close to the opposite of the usual instinct. Rather than imputing gaps, smoothing noise and
+correcting drift — every one of which injects assumptions into the data and then trains a model on
+them — the pipeline goes looking for stretches of record that were **already good**, and throws the
+rest away. What the model sees is original, unmodified measurement.
 
-Both architectures were evaluated on the same pre-processed data, against baselines — the point of
-which is not to be beaten but to establish how much of the problem is genuinely hard. In forecasting,
-persistence and seasonal-naive baselines are unreasonably strong on the exact horizons where deep
-models are usually reported as winning, and a paper that omits them is not reporting a result.
+It runs in three stages.
 
-<!-- TODO: from both papers —
-       - the exact architectures and hyperparameters used for the LSTM and the Transformer
-       - the baselines the paper actually compares against
-       - forecast horizon(s) and input window length
-       - train/validation/test split, and whether it is time-based (it must be) and
-         whether sensors are held out as well as time periods
-       - metrics and results tables
-       - which model wins, on which horizon, and by how much -->
+**Stage 1 — Device filtering.** Keep only sensors whose records are internally consistent. A device is
+accepted if it shows no abrupt discontinuity greater than 10 % within any two-hour window (|Δ| > 0.1
+normalised, the signature of a sensor or communication failure), has more valid samples than the global
+mean across all devices (1,391 in this dataset), and shows a **Pearson correlation of at least 0.7
+between its own two probes**. That last one is elegant: the redundant probe is turned into a
+self-consistency check, so the device certifies itself.
 
-## 5. What each part contributed: pre-processing vs. architecture
+**Stage 2 — Interval segmentation and gap detection.** Split each surviving series into continuous
+segments. What counts as a gap was chosen from the physical process that causes gaps: two thresholds
+were tested, a conservative **two days** and a permissive **five**, bracketing how long battery
+replacement realistically takes across a regular or a long weekend. Segments with fewer than 200 valid
+measurements are discarded, and only intervals with complete concurrent records of precipitation,
+temperature, relative humidity, wind velocity and solar radiation survive, since the models are
+multivariate.
 
-This is the ablation that makes the case, and it is the reason the journal paper is framed the way it
-is: separating how much of the final accuracy comes from the pre-processing and how much from the
-choice of architecture.
+**Stage 3 — Interval scoring and selection.** Score every remaining segment on duration, sampling
+density, inter-probe correlation and data quality:
 
-<!-- TODO: the ablation numbers from the PCE paper — each model with and without
-     the enhanced pre-processing, and ideally with individual stages disabled, so
-     the relative contribution is visible rather than asserted. -->
+$$
+\text{Score} = (t_{\text{end}} - t_{\text{start}})^{w_1} \cdot N^{w_2} \cdot |\text{corr}_{12}|^{w_3}
+\cdot \left(\max\left(0,\ 1 - \frac{f_{o_1} + f_{o_2}}{2}\right)\right)^{w_4} \cdot (\dots)
+$$
 
-If the pre-processing accounts for a large share of the improvement, that is a more useful finding
-for a practitioner than any ranking of architectures, because it is the part that transfers to their
-sensors, their basin and their failure modes.
+where $N$ is the sample count, $\text{corr}_{12}$ the correlation between the two probes, and
+$f_{o_j}$ the outlier fraction for probe $j$ by the standard IQR rule. A final term penalises intervals
+sitting persistently at very low normalised moisture. The score favours long, densely sampled,
+internally consistent intervals and penalises noisy or flatlined ones.
 
-## 6. From SOCO 2025 to the journal article
+The **five highest-scoring intervals**, each from a different device, become the working dataset:
+**27 to 38 consecutive days**, **641 to 908 hourly observations** each.
 
-<!-- TODO: what was extended between the two papers. Candidates to confirm:
-       - a larger or longer dataset, more sensors, more stations
-       - the pre-processing contribution itself, if that is what the journal paper adds
-       - the ablation study
-       - additional baselines or architectures
-       - broader evaluation (more horizons, more sites, cross-sensor generalisation)
-     A clear statement of the delta is worth having — it is the question a reader
-     who has seen the conference paper will arrive with. -->
+Five intervals out of 55 sensors is a brutal reduction, and the paper is upfront that it costs
+something — the training set skews toward well-behaved periods and under-represents extreme
+hydrological events. That is a real limitation, and it is the honest price of not fabricating data.
+
+## 4. Models, and a baseline that is not a strawman
+
+A broad screen came first, then tuning on whatever looked promising. On the full dataset:
+
+| Model | RMSE | $R^2$ |
+|---|--:|--:|
+| Linear regression | 0.0025 | 0.21 |
+| Random Forest | 0.0009 | 0.74 |
+| SARIMAX | 0.81 | 0.18 |
+| LSTM | 0.0010 | 0.72 |
+| SARIMAX + RF | 0.002 | 0.27 |
+
+The **LSTM** and **Transformer** were then evaluated properly against a simple baseline at 1, 8 and 24
+hour horizons, with architectures, hyperparameters and training schedules chosen by Bayesian
+optimisation (Optuna) with cross-validation. Results averaged over the selected intervals:
+
+| Model | Horizon | RMSE (%) | $R^2$ |
+|---|--:|--:|--:|
+| LSTM | 1 h | 0.29 ± 0.12 | 0.98 ± 0.02 |
+| Transformer | 1 h | 0.37 ± 0.11 | 0.96 ± 0.02 |
+| Baseline | 1 h | 0.48 ± 0.09 | 0.93 ± 0.03 |
+| LSTM | 8 h | 0.84 ± 0.30 | 0.74 ± 0.14 |
+| Transformer | 8 h | 0.69 ± 0.38 | 0.83 ± 0.17 |
+| Baseline | 8 h | 1.44 ± 0.42 | 0.25 ± 0.19 |
+| LSTM | 24 h | 1.27 ± 0.27 | 0.31 ± 0.20 |
+| Transformer | 24 h | 1.10 ± 0.29 | 0.43 ± 0.21 |
+| Baseline | 24 h | 1.68 ± 0.20 | −0.46 ± 0.27 |
+
+Two things in that table deserve more attention than they usually get.
+
+**At one hour, the baseline gets $R^2 = 0.93$.** Soil moisture is heavily autocorrelated, so short-horizon
+forecasting is close to trivial and a deep model buys you very little. The gap only opens at 8 hours,
+where the baseline collapses to 0.25 and both deep models hold. Anyone reporting a one-hour result
+without a persistence baseline is reporting the autocorrelation, not the model.
+
+**At 24 hours, everything falls apart** — 0.31 and 0.43. The paper draws the correct conclusion rather
+than the flattering one: making decisions on a 24-hour horizon *is not recommended*, because soil
+moisture at that range is not predictable from current observations. The partial autocorrelation
+function says so directly.
+
+There is one more piece of honesty worth carrying over. A **Diebold–Mariano test** was run against the
+baseline, and averaged across lookback windows most of the comparisons do not reach significance — only
+LSTM-vs-baseline at 24 hours does ($p = 0.005$). The improvements are consistent in direction; the
+statistical evidence per interval is thinner than the RMSE table alone suggests.
+
+## 5. What each part contributed
+
+This is the ablation that justifies the framing, and it is why the journal paper is titled the way it is:
+run only the first two stages of the pipeline instead of all three, and performance degrades.
+
+| Stage run alone | Model | Devices | Max Δ$R^2$ | Max ΔRMSE |
+|---|---|--:|--:|--:|
+| Device filtering | LSTM | 15 | −0.043 | 0.482 |
+| Interval segmentation + gap detection | LSTM | 10 | −0.016 | 1.466 |
+| Device filtering | Transformer | 15 | −0.063 | 0.582 |
+| Interval segmentation + gap detection | Transformer | 10 | −0.036 | 1.639 |
+
+Meanwhile the scoring weights themselves were varied by up to ±50 % and the selection barely moved —
+only two intervals changed at the extremes, and downstream performance was essentially unaffected.
+Only $w_{low}$, the flatline penalty, showed real sensitivity.
+
+That combination is the useful result. The pipeline **as a whole** matters; the exact weights inside it
+do not. A practitioner can port the method to their own network without having to replicate a tuning
+exercise — which is a far more transferable finding than a ranking of architectures.
+
+## 6. From SOCO 2025 to the journal paper
+
+The conference paper established the approach: the same three-stage philosophy, LSTM and Transformer
+against a baseline, on the same sensor network. It reported an awkward detail worth preserving — the
+technical documentation described 55 deployed devices, but the raw data contained **91 unique device
+identifiers**, because device resets change the identifier. Before any modelling, someone had to work
+out that a third of the "devices" were the same hardware under a new name.
+
+The journal paper extends it in five directions: the scoring function is formalised (Eq. 1) rather than
+described; the algorithm screen is widened to linear regression, Random Forest and SARIMAX; the
+**Diebold–Mariano** significance testing is added; **both sensitivity analyses** — on the weights and on
+the pipeline stages — are new, and the second of those is the ablation above; and feature-engineering
+scenarios are defined and compared explicitly.
+
+In short, SOCO showed the pipeline worked. The journal paper showed *which part of it* was doing the
+work, and how much slack there was in the parts that were guessed.
 
 ## 7. Reproducing it
 
-The code is at
+Code is at
 [github.com/Ragarr/soil-moisture-forecasting-lstm-transformer](https://github.com/Ragarr/soil-moisture-forecasting-lstm-transformer).
 
-<!-- TODO:
-       - confirm the repository is public
-       - add setup/run instructions, or point at the repository README
-       - say what the data availability situation is: are the Duero basin series
-         redistributable, and if not, what a reader can run instead -->
+The work was funded by the Spanish Ministry of Science and Innovation (PID2023-151605OB-C22) and
+projects TED2021-131520B-C21 and TED2021-131520B-C22 under the PEICTI 2021–2023 call.
 
 ---
 
