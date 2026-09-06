@@ -6,10 +6,10 @@ tags: [time-series, lstm, transformer, deep-learning, sensor-networks, publicati
 pin: true
 toc: true
 math: true
+image:
+  path: /media/2026-09-06-soil-moisture-forecasting/portada.webp
+  alt: Location of the sensor deployment at Parque Agrourbano de Valdebebas, Madrid
 ---
-
-<!-- TODO: cover image → media/2026-09-06-soil-moisture-forecasting/portada.png,
-     then add the `image:` front-matter block. -->
 
 This is the work I did in the **GIAA group** (Applied Artificial Intelligence) at Universidad Carlos III
 de Madrid, with the Universidad Politécnica de Madrid, on forecasting soil moisture from a field sensor
@@ -32,6 +32,12 @@ The deployment is a network of **55 soil moisture sensors** at the Parque Agrour
 Madrid, covering roughly **120,000 m²** on a regular **50 × 50 m grid**. Each unit is an
 ESP32-PICO-D4 board with **two independent corrosion-resistant resistive probes** buried at 10 cm,
 sampling every **15 minutes**, where each recorded value is already the mean of 10 readings.
+
+The header image above is Fig. 1 of the journal paper, showing the deployment: the sensor grid
+sits on the blue polygon, north-east of Madrid.
+<!-- TODO: add the basemap credit — the orthophoto source (PNOA/IGN? Esri? Google?) and
+     "© OpenStreetMap contributors" for the city inset if it is OSM-derived. -->
+{: .prompt-tip }
 
 That is a careful design. The data still comes out badly behaved, and the specific ways it fails are
 worth listing, because they are not the failures a synthetic benchmark prepares you for:

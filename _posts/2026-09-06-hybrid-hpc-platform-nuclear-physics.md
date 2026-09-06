@@ -6,10 +6,10 @@ tags: [hpc, mpi, openmp, apache-arrow, parquet, hdf5, redis, cpp, slurm, thesis]
 pin: true
 toc: true
 math: true
+image:
+  path: /media/2026-09-06-hybrid-hpc-platform-nuclear-physics/portada.png
+  alt: Speedup against OpenMP thread count, staying above the ideal linear line throughout
 ---
-
-<!-- TODO: cover image → media/2026-09-06-hybrid-hpc-platform-nuclear-physics/portada.png,
-     then add the `image:` front-matter block. -->
 
 My BSc thesis in Computer Engineering at Universidad Carlos III de Madrid was carried out at the
 **IQOG-CSIC**, with the PNRG group, under David Expósito Singh (UC3M) and Pedro Noheda Marín
