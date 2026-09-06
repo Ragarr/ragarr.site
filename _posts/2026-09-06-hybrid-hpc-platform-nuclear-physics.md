@@ -6,6 +6,7 @@ tags: [hpc, mpi, openmp, apache-arrow, parquet, hdf5, redis, cpp, slurm, thesis]
 pin: true
 toc: true
 math: true
+mermaid: true
 image:
   path: /media/2026-09-06-hybrid-hpc-platform-nuclear-physics/portada.png
   alt: Schematic of the adaptive search - workers cluster on the best estimated region while explorers sample the whole combinatorial space
@@ -70,10 +71,58 @@ it guarantees atomic `fetch_add` on floating-point types — which the shared sc
 The local side is Python 3.11 for interactive querying and plotting, with the hot paths pushed into
 C++ extensions through Pybind11 so the same algorithms back both environments.
 
-Execution proceeds as follows. All ranks load the input, synchronise on an MPI barrier, and then each
-rank spawns OpenMP threads that loop independently: **ask for a region, evaluate every candidate in
-it, report the score, repeat** — until the regions run out. MPI handles startup and teardown; Redis
-handles everything in between.
+The platform is three modules, and the split follows the two access patterns rather than any
+organisational tidiness: one path prepares data once, and two paths consume it very differently.
+
+```mermaid
+flowchart LR
+    SRC[Source documents] --> M1["<b>Module 1</b><br/>Data extraction"]
+    M1 --> PQ[("isotopes.parquet")]
+    M1 --> CSV[("isotopes.csv")]
+    PQ --> M3["<b>Module 3</b><br/>Dynamic search on HPC<br/><i>C++20 · MPI + OpenMP</i>"]
+    CSV --> M2["<b>Module 2</b><br/>Local on-demand tool<br/><i>Python · C++ ext.</i>"]
+    M3 --> H5[("HDF5 results<br/>one file per rank")]
+    M2 --> VIZ["Plots and views"]
+```
+
+Module 1 runs once and produces a single consolidated file that is the source of truth for both
+consumers. Module 3 is the throughput path; Module 2 is the latency path. They deliberately share no
+runtime dependency — the HPC code does not need Python, and the local tool does not need MPI — which
+is why the same machine never has to satisfy both dependency sets.
+
+### Execution lifecycle
+
+```mermaid
+flowchart LR
+    A["MPI / OpenMP init"] --> B["Read arguments"] --> C["Connect to Redis"]
+    C --> D["<b>AdaptiveSearchManager</b><br/><i>what to work on next</i>"]
+    D --> E["<b>ScoreEvaluator</b><br/><i>per-candidate scoring</i>"]
+    E --> F
+    subgraph L["Main search loop &nbsp;·&nbsp; per thread, until regions run out"]
+        direction LR
+        F["Select<br/>region"] --> G["Process<br/>region"] --> H["Report<br/>score"] --> I["Export<br/>results"]
+    end
+    F <--> R[("<b>Redis</b><br/>region status · scores")]
+    H --> R
+    I --> J[("<b>HDF5</b><br/>.rank&lt;N&gt;.h5")]
+```
+
+All ranks load the input, instantiate the two long-lived components, and synchronise on an MPI
+barrier. The `AdaptiveSearchManager` owns the decision of what to work on next; the `ScoreEvaluator`
+owns the per-candidate computation. Keeping those separate is what makes the scoring swappable
+without touching the distribution logic.
+
+Each rank then spawns OpenMP threads that loop independently: **ask for a region, evaluate every
+candidate in it, report the score, repeat** — until the regions run out. Threads never coordinate with
+each other directly, and ranks never message each other during the loop; both talk to Redis instead.
+The loop terminates when the manager reports no regions left or a configured iteration limit is hit,
+at which point each rank flushes its HDF5 buffers, closes its file, releases Redis and calls
+`MPI_Finalize()`.
+
+The division of labour is deliberate and worth stating plainly, because each of the three parallelism
+technologies does exactly one job: **MPI** for startup, teardown and process topology; **OpenMP** for
+saturating the cores inside a node; **Redis** for every irregular, data-dependent decision in between.
+Nothing in the hot loop needs a collective, which is why adding nodes costs so little.
 
 ### Regions and combinatorial indexing
 
