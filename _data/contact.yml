@@ -27,8 +27,6 @@
 #   icon: 'fab fa-stack-overflow'
 #   url:  ''                  # Fill with your stackoverflow homepage
 #
-# TODO: uncomment and fill in the ORCID iD once it exists. Chirpy renders `url`
-# verbatim, so an entry with an empty url would emit a broken sidebar link.
-# - type: orcid
-#   icon: 'fab fa-orcid'
-#   url:  'https://orcid.org/0000-0000-0000-0000'
+- type: orcid
+  icon: 'fab fa-orcid'
+  url:  'https://orcid.org/0009-0003-7749-1661'

@@ -14,7 +14,7 @@ timezone: Europe/Madrid
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Raúl Aguilar — Embedded · HPC · Data # the main title
+title: Raúl Aguilar — HPC · Systems · Research # the main title
 
 tagline: >-
   Predoctoral researcher @ UC3M ARCOS · HPC, parallel storage and simulation ·
