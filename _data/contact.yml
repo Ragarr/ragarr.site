@@ -21,8 +21,14 @@
 #
 - type: linkedin
   icon: 'fab fa-linkedin'   # icons powered by <https://fontawesome.com/>
-  url:  'https://www.linkedin.com/in/raul-aguilar-arroyo-208462221/'                  # Fill with your Linkedin homepage
+  url:  'https://www.linkedin.com/in/ra%C3%BAl-aguilar-arroyo-208462221/' # Fill with your Linkedin homepage
 #
 # - type: stack-overflow
 #   icon: 'fab fa-stack-overflow'
 #   url:  ''                  # Fill with your stackoverflow homepage
+#
+# TODO: uncomment and fill in the ORCID iD once it exists. Chirpy renders `url`
+# verbatim, so an entry with an empty url would emit a broken sidebar link.
+# - type: orcid
+#   icon: 'fab fa-orcid'
+#   url:  'https://orcid.org/0000-0000-0000-0000'
