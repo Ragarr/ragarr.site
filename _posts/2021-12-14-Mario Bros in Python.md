@@ -3,7 +3,7 @@ title: Mario Bros in Python with Pyxel
 description: Building a first‑level clone of Super Mario Bros using Python and the Pyxel library.
 date: 2021-12-14
 tags: [Python, Pyxel, GameDev]
-categories: [Projects, UC3M]
+categories: [Coursework, Games]
 pin: false
 toc: true
 mermaid: true

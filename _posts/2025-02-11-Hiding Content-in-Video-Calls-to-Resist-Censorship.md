@@ -2,8 +2,8 @@
 title: Hiding Content in Video Calls to Resist Censorship
 description: An analysis of WebRTC-based protocols to circumvent internet censorship through techniques such as steganography, protocol mimicry, and dynamic proxy networks.
 date: 2024-12-28
-tags: [WebRTC, Censorship, Steganography, Internet Freedom]
-categories: [Papers]
+tags: [WebRTC, Censorship, Steganography, Internet Freedom, censorship-resistance]
+categories: [Coursework, Security]
 pin: false
 toc: true
 mermaid: true

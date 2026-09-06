@@ -3,7 +3,7 @@ title: Image Encryption System by Areas
 description: Application to locally encrypt selected regions of images before storing them on a server.
 date: 2023-10-27
 tags: [Python, Cryptography, Security, Images]
-categories: [Projects, UC3M]
+categories: [Coursework, Security]
 pin: false
 toc: true
 mermaid: true

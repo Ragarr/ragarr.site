@@ -2,8 +2,8 @@
 title: Nextcloud on RAID with SSL and Domain (Archived Tutorial)
 description: Archived tutorial on installing Nextcloud with Debian 12, RAID5, and SSL. Outdated practices, kept only for reference.
 date: 2024-08-09
-tags: [Nextcloud, Debian, Server, Apache, RAID, SSL, DDNS, Selfhosting]
-categories: [Projects, Tutorials, Archived]
+tags: [Nextcloud, Debian, Server, Apache, RAID, SSL, DDNS, Selfhosting, archived]
+categories: [Systems, Homelab]
 pin: false
 toc: true
 comments: true
