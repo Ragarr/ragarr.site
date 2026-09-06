@@ -21,8 +21,12 @@
 #
 - type: linkedin
   icon: 'fab fa-linkedin'   # icons powered by <https://fontawesome.com/>
-  url:  'https://www.linkedin.com/in/raul-aguilar-arroyo-208462221/'                  # Fill with your Linkedin homepage
+  url:  'https://www.linkedin.com/in/ra%C3%BAl-aguilar-arroyo-208462221/' # Fill with your Linkedin homepage
 #
 # - type: stack-overflow
 #   icon: 'fab fa-stack-overflow'
 #   url:  ''                  # Fill with your stackoverflow homepage
+#
+- type: orcid
+  icon: 'fab fa-orcid'
+  url:  'https://orcid.org/0009-0003-7749-1661'

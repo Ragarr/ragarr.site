@@ -2,8 +2,8 @@
 title: Static Website with HTML, CSS, and JavaScript
 description: Building a static personal website to showcase my CV and portfolio before migrating to Jekyll.
 date: 2024-06-23
-tags: [HTML, CSS, JavaScript, Web Development]
-categories: [Projects, Personal]
+tags: [html, css, javascript, web development]
+categories: [Coursework, Web]
 pin: false
 toc: true
 lang: en

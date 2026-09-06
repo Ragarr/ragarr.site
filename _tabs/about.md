@@ -1,7 +1,7 @@
 ---
 title: About this site
 icon: fas fa-info-circle
-order: 4
+order: 5
 ---
 
 This website is based on the [**Chirpy**](https://chirpy.cotes.page/) theme by [Cotes](https://github.com/cotes2020) for Jekyll and has been deployed on GitHub Pages.

@@ -14,12 +14,16 @@ timezone: Europe/Madrid
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Raúl Aguilar — Embedded · HPC · Data # the main title
+title: Raúl Aguilar — HPC · Systems · Research # the main title
 
-tagline: Embedded firmware @ Geotab · HPC & time-series ML
+tagline: >-
+  Predoctoral researcher @ UC3M ARCOS · HPC, parallel storage and simulation ·
+  embedded systems (NuttX/Linux)
 
 description: >- # used by seo meta and the atom feed
-  Embedded developer (Geotab). Research in HPC & time-series ML (LSTM/Transformer). First-author SOCO 2025. BSc thesis graded 9.6/10.
+  Predoctoral researcher at UC3M ARCOS. HPC, parallel and distributed storage, simulation
+  and time-series ML. First author in Physics and Chemistry of the Earth (2026) and SOCO 2025.
+  BSc thesis graded 9.6/10. Previously embedded firmware at Geotab.
 
 # Fill in the protocol & hostname for your site.
 # e.g. 'https://username.github.io', note that it does not end with a '/'.
@@ -39,7 +43,7 @@ social:
   links:
     # The first element serves as the copyright owner's link
     - https://github.com/Ragarr # change to your github homepage
-    - https://www.linkedin.com/in/raul-aguilar-arroyo-208462221/
+    - https://www.linkedin.com/in/ra%C3%BAl-aguilar-arroyo-208462221/
     - https://www.goodreads.com/user/show/167633349-ra-l-aguilar
     - https://x.com/DefalcoVgl
     # Uncomment below to add more social links

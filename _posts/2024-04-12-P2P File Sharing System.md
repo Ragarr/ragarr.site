@@ -2,8 +2,8 @@
 title: P2P File Sharing System
 description: Development of a P2P file sharing system with a logger using ONC-RPC and a C-based server (indexer), a Python Web Service, and a Python client.
 date: 2024-04-12
-tags: [Distributed Systems, C, Python, ONC-RPC, Web Service, P2P, Sockets]
-categories: [Projects, UC3M]
+tags: [distributed systems, c, python, onc-rpc, web service, p2p, sockets]
+categories: [Coursework, Distributed Systems]
 pin: false
 toc: true
 lang: en
