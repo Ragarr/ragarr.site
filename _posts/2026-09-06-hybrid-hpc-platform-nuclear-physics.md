@@ -8,7 +8,7 @@ toc: true
 math: true
 image:
   path: /media/2026-09-06-hybrid-hpc-platform-nuclear-physics/portada.png
-  alt: Speedup against OpenMP thread count, staying above the ideal linear line throughout
+  alt: Schematic of the adaptive search - workers cluster on the best estimated region while explorers sample the whole combinatorial space
 ---
 
 My BSc thesis in Computer Engineering at Universidad Carlos III de Madrid was carried out at the
