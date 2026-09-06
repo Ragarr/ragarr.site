@@ -33,10 +33,11 @@ Madrid, covering roughly **120,000 m²** on a regular **50 × 50 m grid**. Each 
 ESP32-PICO-D4 board with **two independent corrosion-resistant resistive probes** buried at 10 cm,
 sampling every **15 minutes**, where each recorded value is already the mean of 10 readings.
 
-The header image above is Fig. 1 of the journal paper, showing the deployment: the sensor grid
-sits on the blue polygon, north-east of Madrid.
-<!-- TODO: add the basemap credit — the orthophoto source (PNOA/IGN? Esri? Google?) and
-     "© OpenStreetMap contributors" for the city inset if it is OSM-derived. -->
+The header image above is Fig. 1 of the journal paper: the sensor grid sits on the blue polygon,
+north-east of Madrid. Reproduced from R. Aguilar, M. A. Patricio, A. Berlanga, J. M. Molina and
+S. Zubelzu, *Physics and Chemistry of the Earth, Parts A/B/C* **145** (2026) 104766,
+[doi:10.1016/j.pce.2026.104766](https://doi.org/10.1016/j.pce.2026.104766) — © 2026 Elsevier Ltd,
+reproduced by the author.
 {: .prompt-tip }
 
 That is a careful design. The data still comes out badly behaved, and the specific ways it fails are

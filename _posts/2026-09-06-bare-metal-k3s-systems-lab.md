@@ -7,10 +7,6 @@ pin: false
 toc: true
 ---
 
-<!-- TODO: cover image → media/2026-09-06-bare-metal-k3s-systems-lab/portada.png,
-     then add the `image:` front-matter block. Omitted for now because
-     htmlproofer treats a missing image path as a broken link. -->
-
 I run a two-node Kubernetes cluster on hardware I can physically touch. It hosts things I actually
 depend on — mail, photos, notes, media — but that is not really why it exists. It exists because
 distributed storage, scheduling and failure recovery are the subjects I work on, and reading about
